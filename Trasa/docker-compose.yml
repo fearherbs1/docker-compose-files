@@ -1,0 +1,37 @@
+version: '3.3'
+services:
+    postgres:
+        ports:
+            - '5432:5432'
+        container_name: db
+        environment:
+            - POSTGRES_PASSWORD=trasauser
+            - POSTGRES_USER=trasauser
+            - POSTGRES_DB=trasadb
+        image: 'postgres'
+    redis:
+        ports:
+            - '6379:6379'
+        container_name: redis
+        image: 'redis:6.0.8'
+    guacd:
+        container_name: guacd
+        ports:
+            - '127.0.0.1:4822:4822'
+        volumes:
+            - '/tmp/trasa/accessproxy/guac:/tmp/trasa/accessproxy/guac'
+        image: 'seknox/guacd'
+    trasa:
+        links:
+            - 'db:db'
+            - 'guacd:guacd'
+            - 'redis:redis'
+        ports:
+            - '443:443'
+            - '80:80'
+            - '8022:8022'
+        environment:
+            - TRASA.LISTENADDR=app.trasa
+        volumes:
+            - '/tmp/trasa/accessproxy/guac:/tmp/trasa/accessproxy/guac'
+        image: 'seknox/trasa'
